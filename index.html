@@ -7,18 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
         integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
-    <title>Audio Visualiser</title>
+    <title>Audio Visualizer | Three.js</title>
     <link rel="shortcut icon" href="#">
+    <link rel="icon"
+        href="https://aws1.discourse-cdn.com/standard17/uploads/threejs/original/2X/e/e4f86d2200d2d35c30f7b1494e96b9595ebc2751.png"
+        type="image/x-icon">
 </head>
 
 <style>
-    *{
+    * {
         margin: 0px;
         padding: 0px;
         font-family: Arial, Helvetica, sans-serif;
     }
 
-    .webgl{
+    .webgl {
         position: fixed;
     }
 
@@ -39,7 +42,7 @@
         text-align: center;
     }
 
-    .overlay> *{
+    .overlay>* {
         margin-top: 0.5em;
     }
 
@@ -51,23 +54,38 @@
         display: none;
     }
 
-    #test-song{
-        top:20px;
-        
+    #test-song {
+        top: 20px;
+
+    }
+
+    #mode {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 100;
+        padding: 0.5em;
+        font-size: larger;
+        font-weight: 600;
+        background-color: rgb(240, 240, 240);
+        border: none;
+        border-radius: 5%;
     }
 </style>
 
 <body>
     <div class="overlay">
-        <h1>Three.js Audio Visualiser</h1>
+        <h1>Three.js Audio Visualizer</h1>
         <h2>Enjoy your music!</h2>
         <h3>Click here to start</h3>
         <h5>(Drag to move)</h5>
     </div>
+
+    <button id="mode" class="hide">Switch Mode</button>
     <canvas class="webgl"></canvas>
     <audio id="test-song" src="./Music/test-song3.mp3" controls></audio>
 
-    
+
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"

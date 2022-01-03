@@ -3,15 +3,16 @@ import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 let audioCtx;
 let analyser;
 let audioSrc;
+let mode = "red"; // red or #ff00ff
 document.querySelector(".overlay").addEventListener("click", () => {
   // console.log(audioCtx);
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  
+
   audioSrc = audioCtx.createMediaElementSource(
     document.getElementById("test-song")
   );
   analyser = audioCtx.createAnalyser();
-  
+
   document.querySelector(".overlay").classList.add("hide");
   document.getElementById("test-song").play();
   analyser.getByteFrequencyData(frequencyData);
@@ -75,7 +76,9 @@ const planeMaterial = new THREE.RawShaderMaterial({
   void main()
   {
   
-      gl_FragColor = vec4(1.0, vFrequency/350.0, 0.0, 1.0);
+      gl_FragColor = vec4(1.0, vFrequency/350.0, ${
+        mode == "red" ? 0.0 : 1.0
+      }, 1.0);
   }
   `,
   transparent: true,
@@ -125,7 +128,9 @@ const outerSphereMaterial = new THREE.RawShaderMaterial({
   void main()
   {
   
-      gl_FragColor = vec4(1.0, vFrequency/350.0, 0.0, 1.0);
+      gl_FragColor = vec4(1.0, vFrequency/350.0, ${
+        mode == "red" ? 0.0 : 1.0
+      }, 1.0);
   }
   `,
   transparent: true,
@@ -172,7 +177,9 @@ const innerSphereMaterial = new THREE.RawShaderMaterial({
   void main()
   {
   
-      gl_FragColor = vec4(1.0, vFrequency/350.0, 0.0, 1.0);
+      gl_FragColor = vec4(1.0, vFrequency/350.0, ${
+        mode == "red" ? 0.0 : 1.0
+      }, 1.0);
   }
   `,
   transparent: true,
@@ -211,17 +218,15 @@ scene.add(ambientLight);
 renderer.render(scene, camera);
 const controls = new OrbitControls(camera, renderer.domElement);
 
-let fogColor = new THREE.Color("red");
+let fogColor = new THREE.Color(mode);
 
 scene.background = fogColor;
 scene.fog = new THREE.Fog(fogColor, 0.25, 10);
 
-
 let clock = new THREE.Clock();
 function animate() {
   // console.log(frequencyData);
-  if(analyser)
-    analyser.getByteFrequencyData(frequencyData);
+  if (analyser) analyser.getByteFrequencyData(frequencyData);
   // console.log(frequencyData)
   let max = 0;
   let min = 1000;
@@ -264,14 +269,32 @@ function animate() {
   innerSphere.geometry.normalNeedsUpdates = true;
   innerSphere.geometry.computeVertexNormals();
   innerSphere.geometry.computeVertexNormals();
-
-    console.log(clock.getElapsedTime())
-  outerSphere.rotation.y =  clock.getElapsedTime() * 1.5;
+  outerSphere.rotation.y = clock.getElapsedTime() * 1.5;
 
   requestAnimationFrame(animate);
   controls.update();
   renderer.render(scene, camera);
 }
 
-
 animate();
+
+// const updateMode = () => {};
+
+// document.getElementById("mode").addEventListener("click", () => {
+//   // console.log("clicked", mode);
+//   if (mode === "red") {
+//     mode = "#ff00ff";
+//     updateMode();
+//   } else {
+//     mode = "red";
+//     updateMode();
+//   }
+// });
+
+// setInterval(() => {
+//   scene.background = new THREE.Color(
+//     `rgb(${Math.round(Math.random() * 300)},${Math.round(
+//       Math.random() * 300
+//     )},${Math.round(Math.random() * 300)})`
+//   );
+// }, 1500);
