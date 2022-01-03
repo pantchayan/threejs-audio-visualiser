@@ -1,6 +1,6 @@
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js";
 
-import planeVertexShader from "./shaders/plane/vertex.js";
+import planeVertexShader from "/shaders/plane/vertex.js";
 import planeFragmentShader from "./shaders/plane/fragment.js";
 import sphereVertexShader from "./shaders/sphere/vertex.js";
 import sphereFragmentShader from "./shaders/sphere/fragment.js";
