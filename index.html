@@ -39,6 +39,10 @@
         text-align: center;
     }
 
+    .overlay> *{
+        margin-top: 0.5em;
+    }
+
     .overlay:hover {
         cursor: pointer;
     }
@@ -58,6 +62,7 @@
         <h1>Three.js Audio Visualiser</h1>
         <h2>Enjoy your music!</h2>
         <h3>Click here to start</h3>
+        <h5>(Drag to move)</h5>
     </div>
     <canvas class="webgl"></canvas>
     <audio id="test-song" src="./Music/test-song3.mp3" controls></audio>
