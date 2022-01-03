@@ -4,7 +4,7 @@ let audioCtx;
 let analyser;
 let audioSrc;
 document.querySelector(".overlay").addEventListener("click", () => {
-  console.log(audioCtx);
+  // console.log(audioCtx);
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   
   audioSrc = audioCtx.createMediaElementSource(
@@ -216,6 +216,8 @@ let fogColor = new THREE.Color("red");
 scene.background = fogColor;
 scene.fog = new THREE.Fog(fogColor, 0.25, 10);
 
+
+let clock = new THREE.Clock();
 function animate() {
   // console.log(frequencyData);
   if(analyser)
@@ -231,7 +233,7 @@ function animate() {
       min = frequencyData[i];
     }
   }
-  console.log(max, min);
+  // console.log(max, min);
 
   planeGeometry.setAttribute(
     "aFrequency",
@@ -262,6 +264,9 @@ function animate() {
   innerSphere.geometry.normalNeedsUpdates = true;
   innerSphere.geometry.computeVertexNormals();
   innerSphere.geometry.computeVertexNormals();
+
+    console.log(clock.getElapsedTime())
+  outerSphere.rotation.y =  clock.getElapsedTime() * 1.5;
 
   requestAnimationFrame(animate);
   controls.update();
