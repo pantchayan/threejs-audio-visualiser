@@ -1,9 +1,10 @@
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js";
 
-import planeVertexShader from "/shaders/plane/vertex.js";
-import planeFragmentShader from "./shaders/plane/fragment.js";
-import sphereVertexShader from "./shaders/sphere/vertex.js";
-import sphereFragmentShader from "./shaders/sphere/fragment.js";
+// import planeVertexShader from "./shaders/plane/vertex.js";
+// import planeFragmentShader from "./shaders/plane/fragment.js";
+// import sphereVertexShader from "./shaders/sphere/vertex.js";
+// import sphereFragmentShader from "./shaders/sphere/fragment.js";
+
 let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
 document.querySelector(".overlay").addEventListener("click", () => {
@@ -32,7 +33,11 @@ window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
 
+  camera.aspect = sizes.width / sizes.height;
+  camera.updateProjectionMatrix();
   renderer.setSize(sizes.width, sizes.height);
+
+  renderer.render(scene, camera);
 });
 
 const scene = new THREE.Scene();
@@ -41,8 +46,36 @@ const planeGeometry = new THREE.PlaneBufferGeometry(200, 200, 10, 17);
 const planeVertexCount = planeGeometry.attributes.position.count;
 
 const planeMaterial = new THREE.RawShaderMaterial({
-  vertexShader: planeVertexShader,
-  fragmentShader: planeFragmentShader,
+  vertexShader: `
+  uniform mat4 projectionMatrix;
+  uniform mat4 viewMatrix;
+  uniform mat4 modelMatrix;
+  
+  attribute vec3 position;
+  attribute float aFrequency;
+  varying float vFrequency;
+  void main()
+  {
+      
+      vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+      modelPosition.y += (aFrequency - 150.0) * 0.15;
+      vec4 viewPosition = viewMatrix * modelPosition;
+      vec4 projectedPosition = projectionMatrix * viewPosition;
+  
+      gl_Position = projectedPosition;
+  
+      vFrequency = aFrequency;
+  }`,
+  fragmentShader: `
+  precision mediump float;
+  
+  varying float vFrequency;
+  void main()
+  {
+  
+      gl_FragColor = vec4(1.0, vFrequency/350.0, 0.0, 1.0);
+  }
+  `,
   transparent: true,
   side: THREE.DoubleSide,
   wireframe: false,
@@ -60,8 +93,39 @@ scene.add(plane);
 
 const outerSphereGeometry = new THREE.IcosahedronGeometry(5, 1);
 const outerSphereMaterial = new THREE.RawShaderMaterial({
-  vertexShader: sphereVertexShader,
-  fragmentShader: sphereFragmentShader,
+  vertexShader: `
+  uniform mat4 projectionMatrix;
+  uniform mat4 viewMatrix;
+  uniform mat4 modelMatrix;
+  
+  attribute vec3 position;
+  attribute float aFrequency;
+  attribute float aFactor;
+  varying float vFrequency;
+  void main()
+  {
+      
+      vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+      if(aFrequency > 100.0){
+          modelPosition.y *= aFrequency * 0.01;
+      }
+      vec4 viewPosition = viewMatrix * modelPosition;
+      vec4 projectedPosition = projectionMatrix * viewPosition;
+  
+      gl_Position = projectedPosition;
+  
+      vFrequency = aFrequency * 1.0;
+  }`,
+  fragmentShader: `
+  precision mediump float;
+  
+  varying float vFrequency;
+  void main()
+  {
+  
+      gl_FragColor = vec4(1.0, vFrequency/350.0, 0.0, 1.0);
+  }
+  `,
   transparent: true,
   side: THREE.DoubleSide,
   wireframe: false,
@@ -76,8 +140,39 @@ scene.add(outerSphere);
 
 const innerSphereGeometry = new THREE.IcosahedronGeometry(3, 0);
 const innerSphereMaterial = new THREE.RawShaderMaterial({
-  vertexShader: sphereVertexShader,
-  fragmentShader: sphereFragmentShader,
+  vertexShader: `
+  uniform mat4 projectionMatrix;
+  uniform mat4 viewMatrix;
+  uniform mat4 modelMatrix;
+  
+  attribute vec3 position;
+  attribute float aFrequency;
+  attribute float aFactor;
+  varying float vFrequency;
+  void main()
+  {
+      
+      vec4 modelPosition = modelMatrix * vec4(position, 1.0);
+      if(aFrequency > 100.0){
+          modelPosition.y *= aFrequency * 0.01;
+      }
+      vec4 viewPosition = viewMatrix * modelPosition;
+      vec4 projectedPosition = projectionMatrix * viewPosition;
+  
+      gl_Position = projectedPosition;
+  
+      vFrequency = aFrequency * 1.0;
+  }`,
+  fragmentShader: `
+  precision mediump float;
+  
+  varying float vFrequency;
+  void main()
+  {
+  
+      gl_FragColor = vec4(1.0, vFrequency/350.0, 0.0, 1.0);
+  }
+  `,
   transparent: true,
   side: THREE.DoubleSide,
   wireframe: false,
