@@ -1,24 +1,30 @@
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js";
 
-
-let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
+let audioCtx;
+let analyser;
+let audioSrc;
 document.querySelector(".overlay").addEventListener("click", () => {
+  console.log(audioCtx);
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  
+  audioSrc = audioCtx.createMediaElementSource(
+    document.getElementById("test-song")
+  );
+  analyser = audioCtx.createAnalyser();
+  
   document.querySelector(".overlay").classList.add("hide");
   document.getElementById("test-song").play();
   analyser.getByteFrequencyData(frequencyData);
+  console.log(audioCtx);
+  audioSrc.connect(analyser);
+  audioSrc.connect(audioCtx.destination);
 });
 
+// setInterval(() => {
+//   document.getElementById("test-song").play();
+// }, 500)
+
 const frequencyData = new Uint8Array(200);
-
-const audioSrc = audioCtx.createMediaElementSource(
-  document.getElementById("test-song")
-);
-const analyser = audioCtx.createAnalyser();
-
-audioSrc.connect(analyser);
-audioSrc.connect(audioCtx.destination);
 
 const sizes = { height: window.innerHeight, width: window.innerWidth };
 const canvas = document.querySelector(".webgl");
@@ -187,7 +193,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   500
 );
-camera.position.z = 50;
+camera.position.z = 55;
 camera.position.x = 0;
 camera.position.y = 10;
 
@@ -199,8 +205,8 @@ scene.add(directionalLight);
 const ambientLight = new THREE.AmbientLight(0xfffd00, 0.3);
 scene.add(ambientLight);
 
-const axesHelper = new THREE.AxesHelper(5);
-scene.add(axesHelper);
+// const axesHelper = new THREE.AxesHelper(5);
+// scene.add(axesHelper);
 
 renderer.render(scene, camera);
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -212,8 +218,8 @@ scene.fog = new THREE.Fog(fogColor, 0.25, 10);
 
 function animate() {
   // console.log(frequencyData);
-  analyser.getByteFrequencyData(frequencyData);
-
+  if(analyser)
+    analyser.getByteFrequencyData(frequencyData);
   // console.log(frequencyData)
   let max = 0;
   let min = 1000;
@@ -261,4 +267,6 @@ function animate() {
   controls.update();
   renderer.render(scene, camera);
 }
+
+
 animate();
