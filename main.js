@@ -4,6 +4,7 @@ let audioCtx;
 let analyser;
 let audioSrc;
 let mode = "red"; // red or #ff00ff
+let songNum = 0;
 document.querySelector(".overlay").addEventListener("click", () => {
   // console.log(audioCtx);
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -19,13 +20,15 @@ document.querySelector(".overlay").addEventListener("click", () => {
   console.log(audioCtx);
   audioSrc.connect(analyser);
   audioSrc.connect(audioCtx.destination);
+  document.getElementById('change-btn').classList.remove('hide')
+  document.getElementById("test-song").classList.remove('hide')
 });
 
 // setInterval(() => {
 //   document.getElementById("test-song").play();
 // }, 500)
 
-const frequencyData = new Uint8Array(200);
+const frequencyData = new Uint8Array(210);
 
 const sizes = { height: window.innerHeight, width: window.innerWidth };
 const canvas = document.querySelector(".webgl");
@@ -280,7 +283,7 @@ animate();
 
 // const updateMode = () => {};
 
-// document.getElementById("mode").addEventListener("click", () => {
+// document.getElementById("change-btn").addEventListener("click", () => {
 //   // console.log("clicked", mode);
 //   if (mode === "red") {
 //     mode = "#ff00ff";
@@ -298,3 +301,10 @@ animate();
 //     )},${Math.round(Math.random() * 300)})`
 //   );
 // }, 1500);
+document.getElementById("change-btn").addEventListener("click", () => {
+  // console.log("clicked", mode);
+  document.getElementById('test-song').src = `./Music/test-song${songNum++%6 + 1}.mp3`
+  console.log()
+  
+  document.getElementById("test-song").play();
+});
