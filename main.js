@@ -303,7 +303,7 @@ animate();
 // }, 1500);
 document.getElementById("change-btn").addEventListener("click", () => {
   // console.log("clicked", mode);
-  document.getElementById('test-song').src = `./Music/test-song${songNum++%6 + 1}.mp3`
+  document.getElementById('test-song').src = `./Music/test-song${songNum++%4 + 1}.mp3`
   console.log()
   
   document.getElementById("test-song").play();
