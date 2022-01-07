@@ -1,17 +1,20 @@
+// IMPORTS=====================================
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js";
 
+// UTILITIES=====================================
 let audioCtx;
 let analyser;
 let audioSrc;
-// let mode = "#ff00ff"; // red or #ff00ff
 let songNum = 0;
 
+// UNIFORMS=====================================
 const planeUniforms = {
   iTime: { value: 0 },
   iResolution: { value: new THREE.Vector3() },
 };
 
-const planeVertexShader = `
+// SHADERS===========================================================================
+const planeVertexShader = /*glsl*/ `
 #include <common>
 attribute float aFrequency;
 varying float vFrequency;
@@ -31,7 +34,7 @@ void main()
     vFrequency = aFrequency;
 }`;
 
-const planeFragmentShader = /*  */ `
+const planeFragmentShader = /* glsl */ `
 #include <common>
 uniform vec3 iResolution;
 uniform float iTime;
@@ -55,7 +58,7 @@ void main() {
   mainImage(gl_FragColor, gl_FragCoord.xy);
 }`;
 
-const shapeVertexShader = `
+const shapeVertexShader = /* glsl */ `
 #include <common>
 
 uniform vec3 iResolution;
@@ -76,7 +79,7 @@ void main()
     gl_Position = projectedPosition;
 }`;
 
-const shapeFragmentShader = /*  */ `
+const shapeFragmentShader = /* glsl */ `
 #include <common>
 uniform vec3 iResolution;
 uniform float iTime;
@@ -100,6 +103,10 @@ void main() {
   mainImage(gl_FragColor, gl_FragCoord.xy);
 }`;
 
+// DOM =======================================================================================================================
+
+// HANDLE DOM OVERLAY ===============================================================================================
+
 document.querySelector(".overlay").addEventListener("click", () => {
   // console.log(audioCtx);
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -119,17 +126,25 @@ document.querySelector(".overlay").addEventListener("click", () => {
   document.getElementById("test-song").classList.remove("hide");
 });
 
-// setInterval(() => {
-//   document.getElementById("test-song").play();
-// }, 500)
-
 const frequencyData = new Uint8Array(1024);
 
+// HANDLING CHANGE SONG DOM ======================================================================================================
+document.getElementById("change-btn").addEventListener("click", () => {
+  document.getElementById("test-song").src = `./Music/test-song${
+    (songNum++ % 4) + 1
+  }.mp3`;
+  console.log();
+
+  document.getElementById("test-song").play();
+});
+
+// SIZES ======================================================================================================
 const sizes = { height: window.innerHeight, width: window.innerWidth };
 const canvas = document.querySelector(".webgl");
+// RENDERER ======================================================================================================
 const renderer = new THREE.WebGLRenderer({ canvas });
 renderer.setSize(sizes.width, sizes.height);
-
+// RESIZE ======================================================================================================
 window.addEventListener("resize", () => {
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
@@ -140,9 +155,9 @@ window.addEventListener("resize", () => {
 
   renderer.render(scene, camera);
 });
-
+// SCENE ======================================================================================================
 const scene = new THREE.Scene();
-
+// PLANE ======================================================================================================
 const planeGeometry = new THREE.PlaneBufferGeometry(400, 400, 20, 20);
 const planeVertexCount = planeGeometry.attributes.position.count;
 
@@ -163,8 +178,7 @@ plane.rotation.x = -Math.PI / 2;
 plane.position.y = -7;
 scene.add(plane);
 
-// const sphereGeometry = new THREE.BoxGeometry(10,10,10, 2,2,2);
-
+// OUTER SHAPE ======================================================================================================
 const outerShapeGeometry = new THREE.IcosahedronGeometry(5, 1);
 const outerShapeMaterial = new THREE.ShaderMaterial({
   uniforms: planeUniforms,
@@ -183,6 +197,7 @@ const outerShape = new THREE.Mesh(outerShapeGeometry, outerShapeMaterial);
 outerShape.position.y = 5;
 scene.add(outerShape);
 
+// INNER SHAPE ======================================================================================================
 const innerShapeGeometry = new THREE.IcosahedronGeometry(3, 2);
 const innerShapeMaterial = new THREE.ShaderMaterial({
   vertexShader: shapeVertexShader,
@@ -199,6 +214,7 @@ const innerShape = new THREE.Mesh(innerShapeGeometry, innerShapeMaterial);
 innerShape.position.y = 5;
 scene.add(innerShape);
 
+// CAMERA ======================================================================================================
 const camera = new THREE.PerspectiveCamera(
   55,
   sizes.width / sizes.height,
@@ -207,8 +223,9 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.z = 55;
 camera.position.x = 0;
-camera.position.y = 10;
+camera.position.y = 6;
 
+// LIGHTS ======================================================================================================
 const directionalLight = new THREE.DirectionalLight(0xff0000, 0.5);
 directionalLight.position.x = -20;
 directionalLight.position.z = 10;
@@ -217,17 +234,17 @@ scene.add(directionalLight);
 const ambientLight = new THREE.AmbientLight(0xfffd00, 0.3);
 scene.add(ambientLight);
 
-// const axesHelper = new THREE.AxesHelper(5);
-// scene.add(axesHelper);
-
 renderer.render(scene, camera);
+
+// CONTROLS ======================================================================================================
 const controls = new OrbitControls(camera, renderer.domElement);
 
+// TESTING FOG ======================================================================================================
 let fogColor = new THREE.Color("black");
-
 scene.background = fogColor;
 scene.fog = new THREE.Fog(fogColor, 0.25, 10);
 
+// ANIMATION ======================================================================================================
 let clock = new THREE.Clock();
 function animate(time) {
   time *= 0.001;
@@ -235,30 +252,10 @@ function animate(time) {
 
   planeUniforms.iResolution.value.set(canvas.width, canvas.height, 1);
   planeUniforms.iTime.value = time;
-  // console.log(frequencyData);
   if (analyser) {
     console.log(analyser.frequencyBinCount);
     analyser.getByteFrequencyData(frequencyData);
   }
-
-  // console.log(frequencyData)
-  let max = 0;
-  let min = 1000;
-  let j = 0;
-  let newFreqData = new Uint8Array(1024 * 3);
-  for (let i = 0; i < frequencyData.length; i++) {
-    if (frequencyData[i] > max) {
-      max = frequencyData[i];
-    }
-    if (frequencyData[i] < min) {
-      min = frequencyData[i];
-    }
-    newFreqData[j++] = frequencyData[i] + Math.random() / 4;
-    newFreqData[j++] = frequencyData[i] + Math.random() / 4;
-    newFreqData[j++] = frequencyData[i] + Math.random() / 4;
-  }
-
-  // console.log(max, min);
 
   planeGeometry.setAttribute(
     "aFrequency",
@@ -297,11 +294,3 @@ function animate(time) {
 }
 
 animate();
-document.getElementById("change-btn").addEventListener("click", () => {
-  document.getElementById("test-song").src = `./Music/test-song${
-    (songNum++ % 4) + 1
-  }.mp3`;
-  console.log();
-
-  document.getElementById("test-song").play();
-});
